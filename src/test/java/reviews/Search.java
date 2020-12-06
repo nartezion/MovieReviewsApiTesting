@@ -1,138 +1,178 @@
 package reviews;
 
-import io.restassured.RestAssured;
+import helpersClasses.SearchHelper;
 import io.restassured.response.Response;
-import io.restassured.specification.RequestSpecification;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
 
 public class Search {
 
-    private String apiKey="ZLe1z8nwiSov0WiXZdc6bNYkA97W2Ib6";
-    private String host1="https://api.nytimes.com/svc/movies/v2/reviews/search.json";
-    private static RequestSpecification requestSpecification;
+    public static SearchHelper searchHelper = new SearchHelper();
 
     @BeforeClass
-    public static void specificationConfiguration(){
-        requestSpecification= RestAssured.given()
-        .contentType("application/json")
-        .baseUri("https://api.nytimes.com/svc/movies/v2")
-        .basePath("/reviews/search.json")
-        .queryParam("api-key","ZLe1z8nwiSov0WiXZdc6bNYkA97W2Ib6");
+    public static void specificationConfiguration() {
+        searchHelper.specificationConfiguration("search");
     }
 
 
     @Test
-    public void verifyThatResultsContainSearchQuery()
-    {
+    public void verifySearchWithExistentMovie() {
         String searchQuery = "28 days later";
+        Response response = searchHelper.sendRequestWithOneQueryParam
+                (200, "query", searchQuery);
 
-        Response response=given(requestSpecification).queryParam("query",searchQuery)
-                .when().get()
-                .then().log().body().
-                        statusCode(200).extract().response();
+        List<String> display_titles = response.path("results.display_title");
 
-        List<String> display_titles=response.path("results.display_title");
-
-        List<String> headlines=response.path("results.headline");
-        if(display_titles.size()>0) {
+        List<String> headlines = response.path("results.headline");
+        if (display_titles.size() > 0) {
             for (int i = 0; i < display_titles.size(); i++) {
                 if (!display_titles.get(i).toLowerCase().contains((searchQuery.toLowerCase())) &&
-                        !headlines.get(i).toLowerCase().contains(searchQuery.toLowerCase()))
-                {
+                        !headlines.get(i).toLowerCase().contains(searchQuery.toLowerCase())) {
                     Assert.fail("Result ID = " + i + " does not contain search query in title or headline");
                 }
             }
-        }
-        else {
+        } else {
             Assert.fail("Zero results");
         }
     }
 
 
     @Test
-    public void verifyThatOnlyCriticsPickReviewsAreRetrievedWhenOnlyCriticsPickCheckboxIsEnabled(){
-        Response response = given().contentType("application/json").queryParam("critics-pick","Y")
-                .queryParam("api-key",apiKey).log().uri()
-                .when().get(host1)
-                .then().log().body().statusCode(200).extract().response();
-        List<Integer> criticsPickValues=response.path("results.critics_pick");
+    public void verifyThatOnlyCriticsPickReviewsAreRetrievedWhenOnlyCriticsPickCheckboxIsEnabled() {
+        Response response = searchHelper.sendRequestWithOneQueryParam
+                (200, "critics-pick", "Y");
 
-        if(criticsPickValues.size()>0){
-            for(int i=0;i<criticsPickValues.size();i++){
-                if(criticsPickValues.get(i).equals(0)){
-                    Assert.fail("Result ID = "+i+" has not Critics Pick Mark");
+        List<Integer> criticsPickValues = response.path("results.critics_pick");
+
+        if (criticsPickValues.size() > 0) {
+            for (int i = 0; i < criticsPickValues.size(); i++) {
+                if (criticsPickValues.get(i).equals(0)) {
+                    Assert.fail("Result ID = " + i + " has not Critics Pick Mark");
                 }
             }
+        } else {
+            Assert.fail("Zero results");
         }
-        else {
+    }
+
+
+    @Test
+    public void verifySearchWithQueryWithZeroResults() {
+
+        String searchQuery = "testingTitle";
+
+        searchHelper.sendRequestWithOneQueryParam(200, "query", searchQuery)
+                .then().assertThat().body("num_results", equalTo(0));
+    }
+
+
+    @Test
+    public void verifySearchViaExistentCriticsName() {
+
+        String existentCriticsName = "Ben Kenigsberg";
+
+        Response response = searchHelper.sendRequestWithOneQueryParam
+                (200, "reviewer", existentCriticsName);
+
+        List<String> reviewerNames = response.path("results.byline");
+        if (reviewerNames.size() > 0) {
+            for (int i = 0; i < reviewerNames.size(); i++) {
+                if (!reviewerNames.get(i).equals(existentCriticsName)) {
+                    Assert.fail("Result ID - " + i + "" + "has not _" + existentCriticsName + "_ reviewer name");
+                }
+            }
+        } else {
             Assert.fail("Zero results");
         }
     }
 
     @Test
-    public void verifyThatReviewsThatAreNotMarketWithCriticsPicksMarkAreRetrievedWhenOnlyCriticsPickCheckboxIsDisabled(){
-        Response response = given().contentType("application/json").queryParam("critics-pick","N")
-                .queryParam("api-key",apiKey).log().uri()
-                .when().get(host1)
-                .then().log().body().statusCode(200).extract().response();
-        List<Integer> criticsPickValues=response.path("results.critics_pick");
+    public void verifySearchViaNonexistentCriticsName() {
+        String existentCriticsName = "testing name";
 
-        if(criticsPickValues.size()>0){
-            for(int i=0;i<criticsPickValues.size();i++){
-                if(criticsPickValues.get(i).equals(1)){
-                    Assert.fail("Result ID = "+i+" has Critics Pick Mark");
+        searchHelper.sendRequestWithOneQueryParam
+                (200, "reviewer", existentCriticsName)
+                .then().assertThat().body("num_results", equalTo(0));
+    }
+
+    @Test
+    public void verifySearchViaSinglePublicationDate() {
+        String publicationDate = "2020-12-04";
+
+        Response response = searchHelper.sendRequestWithOneQueryParam
+                (200, "publication-date", publicationDate);
+
+        List<String> publicationDates = response.path("results.publication_date");
+        if (publicationDates.size() > 0) {
+            for (int i = 0; i < publicationDates.size(); i++) {
+                if (!publicationDates.get(i).equals(publicationDate)) {
+                    Assert.fail("Result ID - " + i + "  is not published on _" + publicationDate);
                 }
             }
-        }
-        else {
+        } else {
             Assert.fail("Zero results");
         }
     }
 
-//    @Test
-//    public void verifySearchWithQueryWithZeroResults(){}
-//
-//
-//    @Test
-//    public void verifySearchViaExistentCriticsName(){}
-//
-//    @Test
-//    public void verifySearchViaNonexistentCriticsName(){}
-//
-//    @Test
-//    public void verifySearchViaSinglePublicationDate(){}
-//
-//    @Test
-//    public void verifySearchViaStartEndPublicationsDates(){}
-//
-//    @Test
-//    public void verifySearchViaSingleOpeningDate(){}
-//
-//    @Test
-//    public void verifySearchViaStartEndOpeningDates(){}
-//
-//    @Test
-//    public void verifySearchWithOrderingByTitle(){}
-//
-//    @Test
-//    public void verifySearchWithOrderingByPublicationDate(){}
-//
-//    @Test
-//    public void verifySearchWithOrderByOpeningDate(){}
+    @Test
+    public void verifySearchViaStartEndPublicationsDates() throws ParseException {
+        String startDate = "2010-01-01";
+        String endDate = "2012-01-01";
+        String startEndDate = startDate + ";" + endDate;
 
+        Response response = searchHelper.sendRequestWithOneQueryParam
+                (200, "publication-date", startEndDate);
 
+        List<String> publicationDates = response.path("results.publication_date");
+        List<Date> dates = new ArrayList<>();
+        for (int i = 0; i < publicationDates.size(); i++) {
+            Date date = new SimpleDateFormat("yyyy-MM-dd").parse(publicationDates.get(i));
+            dates.add(date);
+        }
+        try {
+            Date startDateFormatted = new SimpleDateFormat("yyyy-MM-dd").parse(startDate);
+            Date endDateFormatted = new SimpleDateFormat("yyyy-MM-dd").parse(endDate);
+            for (int i = 0; i < dates.size(); i++) {
+                if (dates.get(i).after(startDateFormatted) && dates.get(i).before(endDateFormatted)) {
+                } else {
+                    Assert.fail("Results ID - " + i + ": publication date is not in date range: from "
+                            + startDate + " to " + endDate);
+                }
+            }
+        } catch (ParseException error) {
+            Assert.fail("ParseException error");
+        }
 
+    }
 
+    @Test
+    public void verifySearchViaSingleOpeningDate() {
+    }
 
+    @Test
+    public void verifySearchViaStartEndOpeningDates() {
+    }
 
+    @Test
+    public void verifySearchWithOrderingByTitle() {
+    }
 
+    @Test
+    public void verifySearchWithOrderingByPublicationDate() {
+    }
 
+    @Test
+    public void verifySearchWithOrderByOpeningDate() {
+    }
 
 
 }
