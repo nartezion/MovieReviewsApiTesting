@@ -34,7 +34,7 @@ public class Type {
                 System.out.println(publicationDate);
             }
             System.out.println("--------------------------" + "\n"
-                    + "Sorted dates: --" + "\n");
+                    + "Expected sorted dates: --" + "\n");
             for (Object sortedDate : sortedDates) {
                 System.out.println(sortedDate);
             }
@@ -60,7 +60,7 @@ public class Type {
                 System.out.println(openingDate);
             }
             System.out.println("--------------------------" + "\n"
-                    + "Sorted dates: --" + "\n");
+                    + "Expected sorted dates: --" + "\n");
             for (Object sortedDate : sortedDates) {
                 System.out.println(sortedDate);
             }
@@ -85,7 +85,7 @@ public class Type {
                 System.out.println(reviewTitle);
             }
             System.out.println("--------------------------" + "\n"
-                    + "Sorted titles: --" + "\n");
+                    + "Expected sorted titles: --" + "\n");
             for (Object sortedTitle : sortedTitles) {
                 System.out.println(sortedTitle);
             }
@@ -109,7 +109,7 @@ public class Type {
                 System.out.println(publicationDate);
             }
             System.out.println("--------------------------" + "\n"
-                    + "Sorted dates: --" + "\n");
+                    + "Expected sorted dates: --" + "\n");
             for (Object sortedDate : sortedDates) {
                 System.out.println(sortedDate);
             }

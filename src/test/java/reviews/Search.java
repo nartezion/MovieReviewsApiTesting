@@ -8,9 +8,7 @@ import org.junit.Test;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.hamcrest.Matchers.equalTo;
 
@@ -26,9 +24,14 @@ public class Search {
 
     @Test
     public void verifySearchWithExistentMovie() {
-        String searchQuery = "28 days later";
-        Response response = searchHelper.sendRequestWithOneQueryParam
-                (200, "query", searchQuery);
+        String searchQuery = "28 Days Later";
+
+        HashMap<String, Object> params = new HashMap<>();
+
+        params.put("query", searchQuery);
+
+        Response response = searchHelper.sendRequestWithParams
+                (200, params);
 
         List<String> display_titles = response.path("results.display_title");
 
@@ -48,8 +51,13 @@ public class Search {
 
     @Test
     public void verifyThatOnlyCriticsPickReviewsAreRetrievedWhenOnlyCriticsPickCheckboxIsEnabled() {
-        Response response = searchHelper.sendRequestWithOneQueryParam
-                (200, "critics-pick", "Y");
+
+        HashMap<String, Object> params = new HashMap<>();
+
+        params.put("critics-pick", "Y");
+
+        Response response = searchHelper.sendRequestWithParams
+                (200, params);
 
         List<Integer> criticsPickValues = response.path("results.critics_pick");
 
@@ -70,7 +78,11 @@ public class Search {
 
         String searchQuery = "testingTitle";
 
-        searchHelper.sendRequestWithOneQueryParam(200, "query", searchQuery)
+        HashMap<String, Object> params = new HashMap<>();
+
+        params.put("query", searchQuery);
+
+        searchHelper.sendRequestWithParams(200, params)
                 .then().assertThat().body("num_results", equalTo(0));
     }
 
@@ -80,8 +92,12 @@ public class Search {
 
         String existentCriticsName = "Ben Kenigsberg";
 
-        Response response = searchHelper.sendRequestWithOneQueryParam
-                (200, "reviewer", existentCriticsName);
+        HashMap<String, Object> params = new HashMap<>();
+
+        params.put("reviewer", existentCriticsName);
+
+        Response response = searchHelper.sendRequestWithParams
+                (200, params);
 
         List<String> reviewerNames = response.path("results.byline");
         if (reviewerNames.size() > 0) {
@@ -97,10 +113,14 @@ public class Search {
 
     @Test
     public void verifySearchViaNonexistentCriticsName() {
-        String existentCriticsName = "testing name";
+        String nonExistentCriticsName = "testing name";
 
-        searchHelper.sendRequestWithOneQueryParam
-                (200, "reviewer", existentCriticsName)
+        HashMap<String, Object> params = new HashMap<>();
+
+        params.put("reviewer", nonExistentCriticsName);
+
+        searchHelper.sendRequestWithParams
+                (200, params)
                 .then().assertThat().body("num_results", equalTo(0));
     }
 
@@ -108,8 +128,12 @@ public class Search {
     public void verifySearchViaSinglePublicationDate() {
         String publicationDate = "2020-12-04";
 
-        Response response = searchHelper.sendRequestWithOneQueryParam
-                (200, "publication-date", publicationDate);
+        HashMap<String, Object> params = new HashMap<>();
+
+        params.put("publication-date", publicationDate);
+
+        Response response = searchHelper.sendRequestWithParams
+                (200, params);
 
         List<String> publicationDates = response.path("results.publication_date");
         if (publicationDates.size() > 0) {
@@ -129,50 +153,202 @@ public class Search {
         String endDate = "2012-01-01";
         String startEndDate = startDate + ";" + endDate;
 
-        Response response = searchHelper.sendRequestWithOneQueryParam
-                (200, "publication-date", startEndDate);
+        HashMap<String, Object> params = new HashMap<>();
+
+        params.put("publication-date", startEndDate);
+
+        Response response = searchHelper.sendRequestWithParams
+                (200, params);
 
         List<String> publicationDates = response.path("results.publication_date");
-        List<Date> dates = new ArrayList<>();
-        for (int i = 0; i < publicationDates.size(); i++) {
-            Date date = new SimpleDateFormat("yyyy-MM-dd").parse(publicationDates.get(i));
-            dates.add(date);
-        }
-        try {
-            Date startDateFormatted = new SimpleDateFormat("yyyy-MM-dd").parse(startDate);
-            Date endDateFormatted = new SimpleDateFormat("yyyy-MM-dd").parse(endDate);
-            for (int i = 0; i < dates.size(); i++) {
-                if (dates.get(i).after(startDateFormatted) && dates.get(i).before(endDateFormatted)) {
-                } else {
-                    Assert.fail("Results ID - " + i + ": publication date is not in date range: from "
-                            + startDate + " to " + endDate);
-                }
+        if (publicationDates.size() > 0) {
+            List<Date> dates = new ArrayList<>();
+            for (int i = 0; i < publicationDates.size(); i++) {
+                Date date = new SimpleDateFormat("yyyy-MM-dd").parse(publicationDates.get(i));
+                dates.add(date);
             }
-        } catch (ParseException error) {
-            Assert.fail("ParseException error");
+            try {
+                Date startDateFormatted = new SimpleDateFormat("yyyy-MM-dd").parse(startDate);
+                Date endDateFormatted = new SimpleDateFormat("yyyy-MM-dd").parse(endDate);
+                for (int i = 0; i < dates.size(); i++) {
+                    if (dates.get(i).after(startDateFormatted) && dates.get(i).before(endDateFormatted)) {
+                    } else {
+                        Assert.fail("Results ID - " + i + ": publication date is not in date range: from "
+                                + startDate + " to " + endDate);
+                    }
+                }
+            } catch (ParseException error) {
+                Assert.fail("ParseException error");
+            }
+        } else {
+            Assert.fail("Zero results");
         }
 
     }
 
     @Test
     public void verifySearchViaSingleOpeningDate() {
+        String openingDate = "2020-12-04";
+
+        HashMap<String, Object> params = new HashMap<>();
+
+        params.put("opening-date", openingDate);
+
+        Response response = searchHelper.sendRequestWithParams
+                (200, params);
+
+        List<String> openingDates = response.path("results.opening_date");
+        if (openingDates.size() > 0) {
+            for (int i = 0; i < openingDates.size(); i++) {
+                if (!openingDates.get(i).equals(openingDate)) {
+                    Assert.fail("Result ID - " + i + "  is not opened on _" + openingDate);
+                }
+            }
+        } else {
+            Assert.fail("Zero results");
+        }
     }
 
     @Test
-    public void verifySearchViaStartEndOpeningDates() {
+    public void verifySearchViaStartEndOpeningDates() throws ParseException {
+        String startDate = "2011-01-01";
+        String endDate = "2012-01-01";
+        String startEndDate = startDate + ";" + endDate;
+
+        HashMap<String, Object> params = new HashMap<>();
+
+        params.put("opening-date", startEndDate);
+
+        Response response = searchHelper.sendRequestWithParams
+                (200, params);
+
+        List<String> openingDates = response.path("results.opening_date");
+        if (openingDates.size() > 0) {
+            List<Date> dates = new ArrayList<>();
+            for (int i = 0; i < openingDates.size(); i++) {
+                Date date = new SimpleDateFormat("yyyy-MM-dd").parse(openingDates.get(i));
+                dates.add(date);
+            }
+            try {
+                Date startDateFormatted = new SimpleDateFormat("yyyy-MM-dd").parse(startDate);
+                Date endDateFormatted = new SimpleDateFormat("yyyy-MM-dd").parse(endDate);
+                for (int i = 0; i < dates.size(); i++) {
+                    if (dates.get(i).after(startDateFormatted) && dates.get(i).before(endDateFormatted)) {
+                    } else {
+                        Assert.fail("Results ID - " + i + ": opening date is not in date range: from "
+                                + startDate + " to " + endDate);
+                    }
+                }
+            } catch (ParseException error) {
+                Assert.fail("ParseException error");
+            }
+        } else {
+            Assert.fail("Zero results");
+        }
     }
 
     @Test
     public void verifySearchWithOrderingByTitle() {
+
+        String sortedParam = "by-title";
+
+        HashMap<String, Object> params = new HashMap<>();
+
+        params.put("order", sortedParam);
+
+        Response response = searchHelper.sendRequestWithParams(200, params);
+
+        List<String> reviewTitles = response.path("results.display_title");
+
+        if (reviewTitles.size() > 0) {
+
+            List<String> sortedTitles = new ArrayList(reviewTitles);
+
+            sortedTitles.sort(Comparator.nullsLast(Comparator.naturalOrder()));
+
+            if (!reviewTitles.equals(sortedTitles)) {
+                System.out.println("Display titles of reviews --" + "\n");
+                for (String reviewTitle : reviewTitles) {
+                    System.out.println(reviewTitle);
+                }
+                System.out.println("--------------------------" + "\n"
+                        + "Sorted titles: --" + "\n");
+                for (Object sortedTitle : sortedTitles) {
+                    System.out.println(sortedTitle);
+                }
+                Assert.fail("Reviews are not sorted correctly by _DisplayTitle_");
+            }
+        } else {
+            Assert.fail("Zero results");
+        }
     }
 
     @Test
     public void verifySearchWithOrderingByPublicationDate() {
+
+        String sortedParam = "by-publication-date";
+
+        HashMap<String, Object> params = new HashMap<>();
+
+        params.put("order", sortedParam);
+
+        Response response = searchHelper.sendRequestWithParams(200, params);
+
+        List<String> publicationDates = response.path("results.publication_date");
+        if(publicationDates.size()>0) {
+            List<String> sortedDates = new ArrayList(publicationDates);
+            sortedDates.sort(Collections.reverseOrder());
+            if (!publicationDates.equals(sortedDates)) {
+                System.out.println("Dates of reviews: --");
+                for (String publicationDate : publicationDates) {
+                    System.out.println(publicationDate);
+                }
+                System.out.println("--------------------------" + "\n"
+                        + "Expected sorted dates: --" + "\n");
+                for (Object sortedDate : sortedDates) {
+                    System.out.println(sortedDate);
+                }
+                Assert.fail("Reviews are not sorted correctly by _PublicationDate_");
+            }
+        }
+        else {
+            Assert.fail("Zero results");
+        }
     }
 
     @Test
     public void verifySearchWithOrderByOpeningDate() {
-    }
+        String sortedParam = "by-opening-date";
+        String reviewer = "Special to The New York Times.";
 
+        HashMap<String, Object> params = new HashMap<>();
+
+        params.put("reviewer",reviewer);
+
+        params.put("order", sortedParam);
+
+        Response response = searchHelper.sendRequestWithParams(200, params);
+
+        List<String> openingDates = response.path("results.opening_date");
+        if(openingDates.size()>0) {
+            List<String> sortedDates = new ArrayList(openingDates);
+            sortedDates.sort(Comparator.nullsLast(Comparator.reverseOrder()));
+            if (!openingDates.equals(sortedDates)) {
+                System.out.println("Dates of reviews: --");
+                for (String publicationDate : openingDates) {
+                    System.out.println(publicationDate);
+                }
+                System.out.println("--------------------------" + "\n"
+                        + "Expected sorted dates: --" + "\n");
+                for (Object sortedDate : sortedDates) {
+                    System.out.println(sortedDate);
+                }
+                Assert.fail("Reviews are not sorted correctly by _OpeningDate_");
+            }
+        }
+        else {
+            Assert.fail("Zero results");
+        }
+    }
 
 }
