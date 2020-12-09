@@ -13,7 +13,7 @@ public class SearchHelper extends CommonHelper {
         return given(specificationConfiguration("search")).queryParams(params)
                 .when().log().uri().get()
                 .then().log().body().
-                        statusCode(200).extract().response();
+                        statusCode(expectedStatusCode).extract().response();
     }
 
 

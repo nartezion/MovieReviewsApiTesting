@@ -14,7 +14,7 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class Search {
 
-    public static SearchHelper searchHelper = new SearchHelper();
+    private static SearchHelper searchHelper = new SearchHelper();
 
     @BeforeClass
     public static void specificationConfiguration() {
@@ -295,7 +295,7 @@ public class Search {
         Response response = searchHelper.sendRequestWithParams(200, params);
 
         List<String> publicationDates = response.path("results.publication_date");
-        if(publicationDates.size()>0) {
+        if (publicationDates.size() > 0) {
             List<String> sortedDates = new ArrayList(publicationDates);
             sortedDates.sort(Collections.reverseOrder());
             if (!publicationDates.equals(sortedDates)) {
@@ -310,8 +310,7 @@ public class Search {
                 }
                 Assert.fail("Reviews are not sorted correctly by _PublicationDate_");
             }
-        }
-        else {
+        } else {
             Assert.fail("Zero results");
         }
     }
@@ -323,14 +322,14 @@ public class Search {
 
         HashMap<String, Object> params = new HashMap<>();
 
-        params.put("reviewer",reviewer);
+        params.put("reviewer", reviewer);
 
         params.put("order", sortedParam);
 
         Response response = searchHelper.sendRequestWithParams(200, params);
 
         List<String> openingDates = response.path("results.opening_date");
-        if(openingDates.size()>0) {
+        if (openingDates.size() > 0) {
             List<String> sortedDates = new ArrayList(openingDates);
             sortedDates.sort(Comparator.nullsLast(Comparator.reverseOrder()));
             if (!openingDates.equals(sortedDates)) {
@@ -345,8 +344,7 @@ public class Search {
                 }
                 Assert.fail("Reviews are not sorted correctly by _OpeningDate_");
             }
-        }
-        else {
+        } else {
             Assert.fail("Zero results");
         }
     }

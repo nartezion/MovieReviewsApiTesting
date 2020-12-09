@@ -10,7 +10,7 @@ public abstract class CommonHelper {
     private String host = "https://api.nytimes.com/svc/movies/v2";
     private String searchService = "/reviews/search.json";
     private String typeService = "/reviews/{type}.json";
-    private String reviewerService = "/critics/";
+    private String reviewerService = "/critics/{reviewer}.json";
 
 
     public RequestSpecification specificationConfiguration(String serviceName) {
