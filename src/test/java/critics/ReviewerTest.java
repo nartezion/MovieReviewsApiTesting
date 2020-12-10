@@ -2,14 +2,22 @@ package critics;
 
 import helpersClasses.ReviewerHelper;
 import io.restassured.response.Response;
-import org.junit.Assert;
-import org.junit.Test;
-
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import java.util.List;
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
 
-public class Reviewer {
+public class ReviewerTest {
 
     private static ReviewerHelper reviewerHelper = new ReviewerHelper();
+
+
+    @BeforeAll
+    public static void specificationConfiguration() {
+        reviewerHelper.specificationConfiguration("critics");
+    }
 
     @Test
     public void verifyThatOnlyPartTimeCriticsAreRetrievedWhenPartTimeStatusIsEnabled() {
@@ -23,11 +31,11 @@ public class Reviewer {
         if (criticsStatuses.size() > 0) {
             for (int i = 0; i < criticsStatuses.size(); i++) {
                 if (!criticsStatuses.get(i).equals(reviewerParam)) {
-                    Assert.fail("Result ID = " + i + " has not PART_TIME status");
+                    Assertions.fail("Result ID = " + i + " has not PART_TIME status");
                 }
             }
         } else {
-            Assert.fail("Zero results");
+            Assertions.fail("Zero results");
         }
     }
 
@@ -42,11 +50,11 @@ public class Reviewer {
         if (criticsNames.size() > 0) {
             for (int i = 0; i < criticsNames.size(); i++) {
                 if (!criticsNames.get(i).equals(reviewerParam)) {
-                    Assert.fail("Result ID = " + i + " has not PART_TIME status");
+                    Assertions.fail("Result ID = " + i + " has not PART_TIME status");
                 }
             }
         } else {
-            Assert.fail("Zero results");
+            Assertions.fail("Zero results");
         }
     }
 
@@ -56,25 +64,25 @@ public class Reviewer {
 
         Response response = reviewerHelper.sendRequestWithParams(404,reviewerParam);
 
-        if(!response.path("num_results").equals("0")){
-            Assert.fail("Response contains "+response.path("num_results")+" results but should not have any results");
+        if(!response.path("num_results").equals(0)){
+            Assertions.fail("Response contains "+response.path("num_results")+" results but should not have any results");
         }
     }
 
-//    @Test
-//    public void verifySendingARequestWithIncorrectApiKey() {
-//        String apiKey = "112233";
-//
-//        String reviewerParam = "full-time";
-//
-//        given().contentType("application/json")
-//                .pathParam("reviewer", reviewerParam)
-//                .queryParam("api-key", apiKey).log().uri()
-//                .when().get(host3 + "{reviewer}.json")
-//                .then().log().body().statusCode(401).assertThat().body("fault.faultstring"
-//                , equalTo("Invalid ApiKey"));
-//
-//    }
+    @Test
+    public void verifySendingARequestWithIncorrectApiKey() {
+        String apiKey = "112233";
+
+        String reviewerParam = "full-time";
+
+        given().contentType("application/json")
+                .pathParam("reviewer", reviewerParam)
+                .queryParam("api-key", apiKey).log().uri()
+                .when().get(reviewerHelper.getHost()+reviewerHelper.getReviewerService())
+                .then().log().body().statusCode(401).assertThat().body("fault.faultstring"
+                , equalTo("Invalid ApiKey"));
+
+    }
 //
 //
 //    @Test

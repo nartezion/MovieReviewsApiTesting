@@ -2,21 +2,20 @@ package reviews;
 
 import helpersClasses.SearchHelper;
 import io.restassured.response.Response;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.hamcrest.Matchers.equalTo;
 
-public class Search {
+public class SearchTest {
 
     private static SearchHelper searchHelper = new SearchHelper();
 
-    @BeforeClass
+   @BeforeAll
     public static void specificationConfiguration() {
         searchHelper.specificationConfiguration("search");
     }
@@ -40,11 +39,11 @@ public class Search {
             for (int i = 0; i < display_titles.size(); i++) {
                 if (!display_titles.get(i).toLowerCase().contains((searchQuery.toLowerCase())) &&
                         !headlines.get(i).toLowerCase().contains(searchQuery.toLowerCase())) {
-                    Assert.fail("Result ID = " + i + " does not contain search query in title or headline");
+                    Assertions.fail("Result ID = " + i + " does not contain search query in title or headline");
                 }
             }
         } else {
-            Assert.fail("Zero results");
+            Assertions.fail("Zero results");
         }
     }
 
@@ -64,11 +63,11 @@ public class Search {
         if (criticsPickValues.size() > 0) {
             for (int i = 0; i < criticsPickValues.size(); i++) {
                 if (criticsPickValues.get(i).equals(0)) {
-                    Assert.fail("Result ID = " + i + " has not Critics Pick Mark");
+                    Assertions.fail("Result ID = " + i + " has not Critics Pick Mark");
                 }
             }
         } else {
-            Assert.fail("Zero results");
+            Assertions.fail("Zero results");
         }
     }
 
@@ -103,11 +102,11 @@ public class Search {
         if (reviewerNames.size() > 0) {
             for (int i = 0; i < reviewerNames.size(); i++) {
                 if (!reviewerNames.get(i).equals(existentCriticsName)) {
-                    Assert.fail("Result ID - " + i + "" + "has not _" + existentCriticsName + "_ reviewer name");
+                    Assertions.fail("Result ID - " + i + "" + "has not _" + existentCriticsName + "_ reviewer name");
                 }
             }
         } else {
-            Assert.fail("Zero results");
+            Assertions.fail("Zero results");
         }
     }
 
@@ -139,11 +138,11 @@ public class Search {
         if (publicationDates.size() > 0) {
             for (int i = 0; i < publicationDates.size(); i++) {
                 if (!publicationDates.get(i).equals(publicationDate)) {
-                    Assert.fail("Result ID - " + i + "  is not published on _" + publicationDate);
+                    Assertions.fail("Result ID - " + i + "  is not published on _" + publicationDate);
                 }
             }
         } else {
-            Assert.fail("Zero results");
+            Assertions.fail("Zero results");
         }
     }
 
@@ -173,15 +172,15 @@ public class Search {
                 for (int i = 0; i < dates.size(); i++) {
                     if (dates.get(i).after(startDateFormatted) && dates.get(i).before(endDateFormatted)) {
                     } else {
-                        Assert.fail("Results ID - " + i + ": publication date is not in date range: from "
+                        Assertions.fail("Results ID - " + i + ": publication date is not in date range: from "
                                 + startDate + " to " + endDate);
                     }
                 }
             } catch (ParseException error) {
-                Assert.fail("ParseException error");
+                Assertions.fail("ParseException error");
             }
         } else {
-            Assert.fail("Zero results");
+            Assertions.fail("Zero results");
         }
 
     }
@@ -201,11 +200,11 @@ public class Search {
         if (openingDates.size() > 0) {
             for (int i = 0; i < openingDates.size(); i++) {
                 if (!openingDates.get(i).equals(openingDate)) {
-                    Assert.fail("Result ID - " + i + "  is not opened on _" + openingDate);
+                    Assertions.fail("Result ID - " + i + "  is not opened on _" + openingDate);
                 }
             }
         } else {
-            Assert.fail("Zero results");
+            Assertions.fail("Zero results");
         }
     }
 
@@ -235,15 +234,15 @@ public class Search {
                 for (int i = 0; i < dates.size(); i++) {
                     if (dates.get(i).after(startDateFormatted) && dates.get(i).before(endDateFormatted)) {
                     } else {
-                        Assert.fail("Results ID - " + i + ": opening date is not in date range: from "
+                        Assertions.fail("Results ID - " + i + ": opening date is not in date range: from "
                                 + startDate + " to " + endDate);
                     }
                 }
             } catch (ParseException error) {
-                Assert.fail("ParseException error");
+                Assertions.fail("ParseException error");
             }
         } else {
-            Assert.fail("Zero results");
+            Assertions.fail("Zero results");
         }
     }
 
@@ -276,10 +275,10 @@ public class Search {
                 for (Object sortedTitle : sortedTitles) {
                     System.out.println(sortedTitle);
                 }
-                Assert.fail("Reviews are not sorted correctly by _DisplayTitle_");
+                Assertions.fail("Reviews are not sorted correctly by _DisplayTitle_");
             }
         } else {
-            Assert.fail("Zero results");
+            Assertions.fail("Zero results");
         }
     }
 
@@ -308,10 +307,10 @@ public class Search {
                 for (Object sortedDate : sortedDates) {
                     System.out.println(sortedDate);
                 }
-                Assert.fail("Reviews are not sorted correctly by _PublicationDate_");
+                Assertions.fail("Reviews are not sorted correctly by _PublicationDate_");
             }
         } else {
-            Assert.fail("Zero results");
+            Assertions.fail("Zero results");
         }
     }
 
@@ -342,10 +341,10 @@ public class Search {
                 for (Object sortedDate : sortedDates) {
                     System.out.println(sortedDate);
                 }
-                Assert.fail("Reviews are not sorted correctly by _OpeningDate_");
+                Assertions.fail("Reviews are not sorted correctly by _OpeningDate_");
             }
         } else {
-            Assert.fail("Zero results");
+            Assertions.fail("Zero results");
         }
     }
 

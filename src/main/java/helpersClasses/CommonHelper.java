@@ -2,7 +2,7 @@ package helpersClasses;
 
 import io.restassured.RestAssured;
 import io.restassured.specification.RequestSpecification;
-import org.junit.gen5.api.Assertions;
+import org.junit.jupiter.api.Assertions;
 
 public abstract class CommonHelper {
 
@@ -12,6 +12,22 @@ public abstract class CommonHelper {
     private String typeService = "/reviews/{type}.json";
     private String reviewerService = "/critics/{reviewer}.json";
 
+
+    public String getHost() {
+        return host;
+    }
+
+    public String getSearchService() {
+        return searchService;
+    }
+
+    public String getTypeService() {
+        return typeService;
+    }
+
+    public String getReviewerService() {
+        return reviewerService;
+    }
 
     public RequestSpecification specificationConfiguration(String serviceName) {
 

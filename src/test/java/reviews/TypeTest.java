@@ -2,14 +2,21 @@ package reviews;
 
 import helpersClasses.TypeHelper;
 import io.restassured.response.Response;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-public class Type {
+public class TypeTest {
 
     private static TypeHelper typeHelper = new TypeHelper();
+
+
+@BeforeAll
+    public static void specificationConfiguration() {
+        typeHelper.specificationConfiguration("type");
+    }
 
     @Test
     public void verifyThatReviewsAreSortedCorrectlyByPublicationDate() {
@@ -35,7 +42,7 @@ public class Type {
             for (Object sortedDate : sortedDates) {
                 System.out.println(sortedDate);
             }
-            Assert.fail("Reviews are not sorted correctly by _PublicationDate_");
+            Assertions.fail("Reviews are not sorted correctly by _PublicationDate_");
         }
 
     }
@@ -78,7 +85,7 @@ public class Type {
             for (Object sortedDate : sortedDates) {
                 System.out.println(sortedDate);
             }
-            Assert.fail("Reviews are not sorted correctly by _OpeningDate_");
+            Assertions.fail("Reviews are not sorted correctly by _OpeningDate_");
         }
     }
 
@@ -106,7 +113,7 @@ public class Type {
             for (Object sortedTitle : sortedTitles) {
                 System.out.println(sortedTitle);
             }
-            Assert.fail("Reviews are not sorted correctly by _DisplayTitle_");
+            Assertions.fail("Reviews are not sorted correctly by _DisplayTitle_");
         }
     }
 
@@ -130,7 +137,7 @@ public class Type {
             for (Object sortedDate : sortedDates) {
                 System.out.println(sortedDate);
             }
-            Assert.fail("Reviews are not sorted correctly by _PublicationDate_");
+            Assertions.fail("Reviews are not sorted correctly by _PublicationDate_");
         }
     }
 
@@ -145,11 +152,11 @@ public class Type {
         if (criticsPickValues.size() > 0) {
             for (int i = 0; i < criticsPickValues.size(); i++) {
                 if (criticsPickValues.get(i).equals(0)) {
-                    Assert.fail("Result ID = " + i + " has not Critics Pick Mark");
+                    Assertions.fail("Result ID = " + i + " has not Critics Pick Mark");
                 }
             }
         } else {
-            Assert.fail("Zero results");
+            Assertions.fail("Zero results");
         }
     }
 
