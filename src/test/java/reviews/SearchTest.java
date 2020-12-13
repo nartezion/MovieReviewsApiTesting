@@ -5,6 +5,8 @@ import io.restassured.response.Response;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import java.io.FileNotFoundException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -15,14 +17,14 @@ public class SearchTest {
 
     private static SearchHelper searchHelper = new SearchHelper();
 
-   @BeforeAll
+    @BeforeAll
     public static void specificationConfiguration() {
         searchHelper.specificationConfiguration("search");
     }
 
 
     @Test
-    public void verifySearchWithExistentMovie() {
+    public void verifySearchWithExistentMovie() throws FileNotFoundException {
         String searchQuery = "28 Days Later";
 
         HashMap<String, Object> params = new HashMap<>();
@@ -36,6 +38,7 @@ public class SearchTest {
 
         List<String> headlines = response.path("results.headline");
         if (display_titles.size() > 0) {
+            searchHelper.validateJSON(response.getBody().prettyPrint());
             for (int i = 0; i < display_titles.size(); i++) {
                 if (!display_titles.get(i).toLowerCase().contains((searchQuery.toLowerCase())) &&
                         !headlines.get(i).toLowerCase().contains(searchQuery.toLowerCase())) {
@@ -45,6 +48,21 @@ public class SearchTest {
         } else {
             Assertions.fail("Zero results");
         }
+    }
+
+    @Test
+    public void verifySearchWithQueryNonExistentMovie() throws FileNotFoundException {
+
+        String searchQuery = "testingTitle";
+
+        HashMap<String, Object> params = new HashMap<>();
+
+        params.put("query", searchQuery);
+
+        Response response = searchHelper.sendRequestWithParams(200, params)
+                .then().assertThat().body("num_results", equalTo(0)).extract().response();
+
+        searchHelper.validateJSON(response.getBody().prettyPrint());
     }
 
 
@@ -69,20 +87,6 @@ public class SearchTest {
         } else {
             Assertions.fail("Zero results");
         }
-    }
-
-
-    @Test
-    public void verifySearchWithQueryWithZeroResults() {
-
-        String searchQuery = "testingTitle";
-
-        HashMap<String, Object> params = new HashMap<>();
-
-        params.put("query", searchQuery);
-
-        searchHelper.sendRequestWithParams(200, params)
-                .then().assertThat().body("num_results", equalTo(0));
     }
 
 

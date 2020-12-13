@@ -13,5 +13,4 @@ public class ReviewerHelper extends CommonHelper {
                 .when().get()
                 .then().log().body().statusCode(expectedStatusCode).extract().response();
     }
-
 }

@@ -1,0 +1,101 @@
+{
+  "type": "object",
+  "properties": {
+    "status": {
+      "type": "string"
+    },
+    "copyright": {
+      "type": "string"
+    },
+    "has_more": {
+      "type": "boolean"
+    },
+    "num_results": {
+      "type": "integer"
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "title": "Review",
+        "type": "object",
+        "properties": {
+          "display_title": {
+            "type": "string",
+            "description": "Movie title."
+          },
+          "mpaa_rating": {
+            "type": "string",
+            "description": "Movie MPAA rating (e.g. PG-13)."
+          },
+          "critics_pick": {
+            "type": "integer",
+            "description": "Set to 1 if a critics' pick and 0 if not."
+          },
+          "byline": {
+            "type": "string",
+            "description": "Author of the review (e.g. Manohla Dargis)."
+          },
+          "headline": {
+            "type": "string",
+            "description": "Headline of the review."
+          },
+          "summary_short": {
+            "type": "string",
+            "description": "Short summary about the review."
+          },
+          "publication_date": {
+            "type": "string",
+            "description": "Review publication date."
+          },
+          "opening_date": {
+            "type": "string",
+            "description": "Movie U.S. opening date."
+          },
+          "date_updated": {
+            "type": "string",
+            "description": "Last modified date of the review."
+          },
+          "link": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "description": "Type of asset linked to. Always article."
+              },
+              "url": {
+                "type": "string",
+                "description": "Review URL."
+              },
+              "suggested_link_text": {
+                "type": "string",
+                "description": "Suggested text for link."
+              }
+            }
+          },
+          "multimedia": {
+            "type": ["string", "null"] ,
+            "properties": {
+              "type": {
+                "type": "string",
+                "description": "Image crop name."
+              },
+              "src": {
+                "type": "string",
+                "description": "Image URL."
+              },
+              "width": {
+                "type": "integer",
+                "description": "Image width."
+              },
+              "height": {
+                "type": "integer",
+                "description": "Image height."
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
